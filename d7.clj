@@ -6,7 +6,7 @@
 (def max-pos (apply max positions))
 
 (defn abs-difference [x y] (Math/abs (- x y)))
-(defn sum-up-to [n] (quot (* n (inc n)) 2))
+(defn triangular-number [n] (quot (* n (inc n)) 2))
 
 (defn dist-sum [dist-fn reference]
   (apply + (map #(dist-fn % reference) positions)))
@@ -26,4 +26,4 @@
 (solve abs-difference)
 
 ; part 2
-(solve (comp sum-up-to abs-difference))
+(solve (comp triangular-number abs-difference))

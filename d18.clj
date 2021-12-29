@@ -1,56 +1,52 @@
-(defn tokenize [s]
-  (loop [remaining s
-         tokens []]
-    (let [[fst & rst] remaining]
-      (if (empty? remaining) tokens
-          (recur rst (conj tokens
-                           (if (Character/isDigit fst) (- (int fst) (int \0))
-                               fst)))))))
+(defn tokenize [line]
+  (map #(if (Character/isDigit %) (- (int %) (int \0)) %) line))
 
 (def input
   (->> (slurp "d18.txt")
        clojure.string/split-lines
        (map tokenize)))
 
-(defn add-first [n tokens]
-  (loop [tokens tokens
-         left []]
-    (if (empty? tokens) left
-        (let [[fst & rst] tokens]
-          (if (int? fst) (concat left [(+ fst n)] rst)
-              (recur rst (conj left fst)))))))
+(defn add-to-last-int [n tokens]
+  (loop [i (dec (count tokens))]
+    (cond (= -1 i) tokens
+          (int? (get tokens i)) (update tokens i (partial + n))
+          :else (recur (dec i)))))
 
-(defn explode [left-acc left remaining]
-  (let [[_ right _ & rst] remaining]
-    [(->> (add-first left (rest (reverse left-acc)))
-          (cons 0)
-          (reverse)
-          (vec))
-     (add-first right rst)]))
+(defn add-to-first-int [n tokens]
+  (defn go [[tok & tokens]]
+    (cond
+      (nil? tok) ()
+      (int? tok) (cons (+ n tok) tokens)
+      :else (cons tok (go tokens))))
+  (go tokens))
 
-(defn explode-all [s]
-  (loop [remaining s
-         left-acc []
+(defn explode [left n1 right]
+  (let [[_ n2 _ & right] right]
+    [(conj (pop (add-to-last-int n1 left)) 0)
+     (add-to-first-int n2 right)]))
+
+(defn explode-all [tokens]
+  (loop [left []
+         right tokens
          nesting-level 0]
-    (if (nil? remaining) left-acc
-        (let [[fst & rst] remaining]
+    (if (nil? right) left
+        (let [[tok & right] right]
           (if (= nesting-level 5)
-            (let [[left right] (explode left-acc fst rst)] (recur right left (dec nesting-level)))
-            (recur rst (conj left-acc fst) (+ nesting-level (case fst \[ 1 \] -1 0))))))))
+            (let [[left right] (explode left tok right)] (recur left right (dec nesting-level)))
+            (recur (conj left tok) right (+ nesting-level (case tok \[ 1 \] -1 0))))))))
 
-(defn split [left-acc left remaining]
-  (let [n1 (quot left 2)
-        n2 (- left n1)]
-    (concat left-acc [\[ n1 \, n2 \]] remaining)))
+(defn split [left n right]
+  (let [n1 (quot n 2)
+        n2 (- n n1)]
+    (concat left [\[ n1 \, n2 \]] right)))
 
-(defn reduce-step
-  ([[_ s]]
-   (loop [remaining (explode-all s)
-          left-acc []]
-     (if (nil? remaining) [false left-acc]
-         (let [[fst & rst] remaining]
-           (if (and (int? fst) (> fst 9)) [true (split left-acc fst rst)]
-               (recur rst (conj left-acc fst))))))))
+(defn reduce-step [[_ tokens]]
+  (loop [left []
+         tokens (explode-all tokens)]
+    (if (nil? tokens) [false left]
+        (let [[tok & tokens] tokens]
+          (if (and (int? tok) (> tok 9)) [true (split left tok tokens)]
+              (recur (conj left tok) tokens))))))
 
 (defn reduce-number [s]
   (->> (iterate reduce-step [true s])
@@ -59,7 +55,7 @@
        second))
 
 (defn add-numbers [n1 n2]
-  (reduce-number (vec (concat [\[] n1 [\,] n2 [\]]))))
+  (reduce-number (concat [\[] n1 [\,] n2 [\]])))
 
 (defn number->vec [n]
   (read-string (apply str n)))

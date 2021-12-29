@@ -1,35 +1,25 @@
 (def hex->bits
-  {\0 "0000"
-   \1 "0001"
-   \2 "0010"
-   \3 "0011"
-   \4 "0100"
-   \5 "0101"
-   \6 "0110"
-   \7 "0111"
-   \8 "1000"
-   \9 "1001"
-   \A "1010"
-   \B "1011"
-   \C "1100"
-   \D "1101"
-   \E "1110"
-   \F "1111"})
+  {\0 "0000" \1 "0001" \2 "0010" \3 "0011"
+   \4 "0100" \5 "0101" \6 "0110" \7 "0111"
+   \8 "1000" \9 "1001" \A "1010" \B "1011"
+   \C "1100" \D "1101" \E "1110" \F "1111"})
 
 (def input
   (->>
    (slurp "d16.txt")
    (map hex->bits)
-   (apply str)))
+   clojure.string/join))
 
 (defn bits->int [bits]
-  (Long/parseLong (apply str bits) 2))
+  (Long/parseLong (clojure.string/join bits) 2))
 
+(declare parse-literal)
+(declare parse-operator)
 (defn parse-packet [bits]
   (let [[header bits] (split-at 6 bits)
-        [version type-id] (partition 3 header)
-        tags {:version (bits->int version) :type-id (bits->int type-id)}]
-    (if (= type-id [\1 \0 \0])
+        [version type-id] (map bits->int (partition 3 header))
+        tags {:version version :type-id type-id}]
+    (if (= type-id 4)
       (let [[value-bits bits] (parse-literal bits)]
         [(merge tags {:value (bits->int value-bits)}) bits])
       (let [[subpackets bits] (parse-operator bits)]
@@ -51,9 +41,10 @@
 (defn parse-packets [bits]
   (loop [packets []
          bits bits]
-    (let [[packet bits] (parse-packet bits)]
-      (if (empty? bits) (conj packets packet)
-          (recur (conj packets packet) bits)))))
+    (let [[packet bits] (parse-packet bits)
+          packets (conj packets packet)]
+      (if (empty? bits) packets
+          (recur packets bits)))))
 
 (defn parse-n-packets [n bits]
   (loop [packets []

@@ -1,59 +1,49 @@
 (require 'clojure.set)
 
 (def input (->> (slurp "d9.txt")
-                (clojure.string/split-lines)
-                (map char-array)
-                (map (partial map #(- (int %) (int \0))))
-                (map vec)
-                (vec)))
+                clojure.string/split-lines
+                (mapv (partial mapv #(- (int %) (int \0))))))
 
 (def rows (count input))
 (def cols (count (first input)))
 (def points (for [i (range rows) j (range cols)] [i j]))
 
-(defn height [[i j]]
-  (get-in input [i j]))
+(defn height [point]
+  (get-in input point))
 
 (defn neighbors [[i j]]
-  (->> [[(dec i) j]
-        [i (dec j)]
-        [(inc i) j]
-        [i (inc j)]]
-       (filter (fn [[i j]] (and
-                            (<= 0 i (dec rows))
-                            (<= 0 j (dec cols)))))))
+  (cond-> []
+    (> i 0) (conj [(dec i) j])
+    (< i (dec rows)) (conj [(inc i) j])
+    (> j 0) (conj [i (dec j)])
+    (< j (dec cols)) (conj [i (inc j)])))
 
 (defn low? [point]
   (let [h (height point)]
     (->> (neighbors point)
          (map height)
-         (filter #(>= h %))
-         (count)
-         (= 0))))
+         (every? #(> % h)))))
 
 (def low-points (filter low? points))
 
 ; part 1
 (->> low-points
-     (map height)
-     (map inc)
+     (map (comp inc height))
      (apply +))
 
-(defn dfs [[i j]]
-  (loop [seen #{[i j]}
-         [top & more] (list [i j])]
+(defn basin [point]
+  (loop [seen #{point}
+         [top & more] [point]]
     (if (nil? top) seen
-        (let [relevant-neighbors (filter #(and
-                                           (not (seen %))
-                                           (not= 9 (height %)))
-                                         (neighbors top))]
-          (recur (clojure.set/union seen (set relevant-neighbors))
-                 (apply conj more relevant-neighbors))))))
+        (let [next-points (->> (neighbors top)
+                               (remove seen)
+                               (remove (comp (partial = 9) height)))]
+          (recur (clojure.set/union seen (set next-points))
+                 (concat more next-points))))))
 
 ; part 2
 (->> low-points
-     (map dfs)
-     (map count)
+     (map (comp count basin))
      (sort >)
      (take 3)
      (apply *))

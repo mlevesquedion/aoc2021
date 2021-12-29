@@ -4,7 +4,7 @@
 
 (def initial-pair-counts
   (->> (partition 2 1 template)
-       (reduce #(update %1 %2 (fnil inc 0)) {})))
+       frequencies))
 
 (def insertion-rules
   (->> (drop 2 lines)
@@ -19,7 +19,7 @@
        (apply merge-with +)))
 
 (defn ->item-counts [pair-counts]
-  (->> (map (fn [[[a _] c]] {a c}) pair-counts)
+  (->> (map (fn [[[x _] c]] {x c}) pair-counts)
        (apply merge-with +)
        (#(update % (last template) (fnil inc 0)))))
 

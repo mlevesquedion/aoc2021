@@ -1,12 +1,12 @@
 (def input
-  (->> (clojure.java.io/reader "d1.txt")
-       (line-seq)
+  (->> (slurp "d1.txt")
+       clojure.string/split-lines
        (map read-string)))
 
 (defn increases [s]
   (->> (map < s (rest s))
        (filter true?)
-       (count)))
+       count))
 
 ; part 1
 (increases input)
@@ -15,4 +15,4 @@
 (->> input
      (partition 3 1)
      (map #(apply + %))
-     (increases))
+     increases)

@@ -17,22 +17,23 @@
         z (+ z (* (+ w b) x))]
     z))
 
-(defn next-ws [range- z m a]
+(defn next-ws [z m a]
   (if (= m 26)
     (let [w (+ (mod z 26) a)]
       (if (<= 1 w 9) [w]))
-    range-))
+    (range 1 10)))
 
-(defn solve
-  ([range-] (solve range- 0 [] table))
-  ([range- z acc [[m a b] & table]]
-   (if (nil? m)
-     (if (= z 0) [(Long/parseLong (apply str acc))])
-     (apply concat (for [w (next-ws range- z m a)]
-                     (solve range- (step w z m a b) (conj acc w) table))))))
+(defn solve []
+  (defn go [z acc [[m a b] & table]]
+    (if (nil? m)
+      (if (= z 0) [(Long/parseLong (apply str acc))])
+      (mapcat
+       #(go (step % z m a b) (conj acc %) table)
+       (next-ws z m a))))
+  (go 0 [] table))
 
 ; part 1
-(time (first (solve (range 9 0 -1))))
+(last (solve))
 
 ; part 2
-(time (first (solve (range 1 10))))
+(first (solve))

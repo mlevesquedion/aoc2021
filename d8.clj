@@ -1,7 +1,7 @@
 (require 'clojure.set)
 
 (def input (->> (slurp "d8.txt")
-                (clojure.string/split-lines)
+                clojure.string/split-lines
                 (map #(clojure.string/split % #" \| "))
                 (map (partial map #(clojure.string/split % #" ")))
                 (map (partial map (partial map set)))))
@@ -10,22 +10,22 @@
 (def outputs (map second input))
 
 ; part 1
-(count (filter #(let [c (count %)] (contains? #{2 3 4 7} c)) (apply concat outputs)))
+(count (filter #{2 3 4 7} (map count (flatten outputs))))
 
 (defn having-count [n]
-  (fn [coll] (and (= n (count coll)) coll)))
+  (fn [coll] ({n coll} (count coll))))
 
-(defn has-one-more [more less]
+(defn has-one-more? [more less]
   (and (empty? (clojure.set/difference less more))
        ((having-count 1) (clojure.set/difference more less))))
 
 (defn having-one-more [less]
   (fn [more]
-    (and (has-one-more more less) more)))
+    (and (has-one-more? more less) more)))
 
 (defn having-one-less [more]
   (fn [less]
-    (and (has-one-more more less) less)))
+    (and (has-one-more? more less) less)))
 
 (defn make-decoder [signals]
   (let [one (some (having-count 2) signals)
@@ -42,12 +42,11 @@
         middle (clojure.set/difference three three-minus-middle)
         zero (clojure.set/difference eight middle)
         two (first (clojure.set/difference (set signals) #{zero one three four five six seven eight nine}))]
-    {zero "0" one "1" two "2" three "3" four "4" five "5" six "6" seven "7" eight "8" nine "9"}))
+    (zipmap [zero one two three four five six seven eight nine] (range 10))))
 
 ; part 2
 (->> signals
      (map make-decoder)
      (map #(map %2 %1) outputs)
-     (map (partial apply str))
-     (map #(Integer/parseInt %))
+     (map (comp #(Integer/parseInt %) clojure.string/join))
      (apply +))
