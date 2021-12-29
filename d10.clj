@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def input
   (->> (slurp "d10.txt")
        clojure.string/split-lines))

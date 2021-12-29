@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (defn map-matrix [f matrix]
   (mapv (partial mapv f) matrix))
 
@@ -38,7 +40,7 @@
   (= (apply + (apply concat matrix)) 0))
 
 (defn steps-to-sync [matrix]
-  (count (take-while (complement synchronized) (map second (iterate step [0 input])))))
+  (count (take-while (complement synchronized) (map second (iterate step [0 matrix])))))
 
 ; part 2
 (steps-to-sync input)

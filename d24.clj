@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def code
   (->> (slurp "d24.txt")
        clojure.string/split-lines
@@ -20,20 +22,19 @@
 (defn next-ws [z m a]
   (if (= m 26)
     (let [w (+ (mod z 26) a)]
-      (if (<= 1 w 9) [w]))
+      (when (<= 1 w 9) [w]))
     (range 1 10)))
 
 (defn solve []
   (defn go [z acc [[m a b] & table]]
     (if (nil? m)
-      (if (= z 0) [(Long/parseLong (apply str acc))])
+      (when (= z 0) [(Long/parseLong (apply str acc))])
       (mapcat
        #(go (step % z m a b) (conj acc %) table)
        (next-ws z m a))))
   (go 0 [] table))
 
-; part 1
-(last (solve))
-
-; part 2
-(first (solve))
+(let [solved (solve)]
+  (println (last solved)) ; part 1
+  (println (first solved)) ; part 2
+  )

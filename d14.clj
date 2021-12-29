@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def lines (clojure.string/split-lines (slurp "d14.txt")))
 
 (def template (first lines))

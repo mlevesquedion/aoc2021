@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def input
   (->>
    (slurp "d3.txt")

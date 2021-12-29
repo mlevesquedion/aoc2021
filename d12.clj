@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (defn make-graph [pairs]
   (reduce (fn [graph [from to]] (update graph from (fnil conj []) to)) {} (concat pairs (map reverse pairs))))
 

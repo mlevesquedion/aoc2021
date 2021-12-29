@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def points (->>
              (slurp "d5.txt")
              clojure.string/split-lines

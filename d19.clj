@@ -1,4 +1,5 @@
-(require 'clojure.set)
+(require 'clojure.set
+         'clojure.string)
 
 (defn parse-point [line]
   (read-string (str \[ line \])))
@@ -53,7 +54,7 @@
 (defn find-match [ps1 ps2]
   (some identity (for [ps2 (all-orientations ps2)]
                    (let [d (matching-dist ps1 ps2)]
-                     (if d [d (set (map #(mapv + % d) ps2))])))))
+                     (when d [d (set (map #(mapv + % d) ps2))])))))
 
 (defn l1-norm [v]
   (apply + (map #(Math/abs %) v)))
@@ -74,7 +75,6 @@
               (if (nil? distance)
                 (recur all-points (conj remaining-scanners scanner) scanner-positions)
                 (recur (clojure.set/union all-points matched) remaining-scanners (conj scanner-positions distance))))))]
-        ; part 1
-  (println (count points))
-        ; part 2
-  (println (apply max (for [[p1 p2] (pairs scanner-positions)] (l1-norm (vec-sub p1 p2))))))
+  (println (count points)) ; part 1
+  (println (apply max (for [[p1 p2] (pairs scanner-positions)] (l1-norm (vec-sub p1 p2))))) ;part 2
+  )

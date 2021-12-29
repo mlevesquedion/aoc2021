@@ -1,4 +1,5 @@
-(require '[clojure.data.priority-map :refer [priority-map]])
+(require 'clojure.string
+         '[clojure.data.priority-map :refer [priority-map]])
 
 (def pod-cost {\A 1 \B 10 \C 100 \D 1000})
 (def pod-column {\A 2 \B 4 \C 6 \D 8})
@@ -67,7 +68,7 @@
         pod-positions (set (map first hallway-pods))]
     (keep (fn [[posn pod :as hallway-pod]]
             (let [room (get state pod)]
-              (if (can-enter-room? room pod-positions hallway-pod)
+              (when (can-enter-room? room pod-positions hallway-pod)
                 [(* (pod-cost pod)
                     (+ (abs-dist posn (pod-column pod))
                        (- pods-per-room (count room))))
@@ -101,7 +102,7 @@
 (defn solve [initial-state]
   (loop [[pqueue distance] [(priority-map initial-state 0) {initial-state 0}]
          seen? #{}]
-    (let [[min-cost-state min-cost] (peek pqueue)
+    (let [[min-cost-state] (peek pqueue)
           pqueue (pop pqueue)]
       (if (is-solved? min-cost-state) (distance min-cost-state)
           (recur

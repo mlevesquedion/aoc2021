@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def hex->bits
   {\0 "0000" \1 "0001" \2 "0010" \3 "0011"
    \4 "0100" \5 "0101" \6 "0110" \7 "0111"
@@ -31,7 +33,7 @@
                 (drop-at-most-3-zeroes bits (dec n)))))
 
 (defn parse-literal [bits]
-  (let [[[start & num-bits :as group] bits] (split-at 5 bits)]
+  (let [[[start & num-bits] bits] (split-at 5 bits)]
     (case start
       \1 (let [[acc-bits remaining-bits] (parse-literal bits)
                value-bits (concat num-bits acc-bits)]

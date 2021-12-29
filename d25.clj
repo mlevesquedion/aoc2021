@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def grid
   (->> (slurp "d25.txt")
        clojure.string/split-lines
@@ -7,7 +9,7 @@
   (reduce-kv
    (fn [acc i v]
      (let [next-i (mod (inc i) (count line))]
-       (if (and (= (nth line i) cucumber) (= (nth line next-i) \.))
+       (if (and (= v cucumber) (= (nth line next-i) \.))
          (-> acc
              (assoc i \.)
              (assoc next-i cucumber))

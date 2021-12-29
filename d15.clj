@@ -1,4 +1,5 @@
-(require '[clojure.data.priority-map :refer [priority-map]])
+(require 'clojure.string
+         '[clojure.data.priority-map :refer [priority-map]])
 
 (def input
   (->> (slurp "d15.txt")

@@ -1,4 +1,5 @@
-(require 'clojure.set)
+(require 'clojure.set
+         'clojure.string)
 
 (def parts (clojure.string/split (slurp "d20.txt") #"\n\n"))
 

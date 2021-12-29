@@ -1,3 +1,7 @@
+(require 'clojure.java.io
+         'clojure.set
+         'clojure.string)
+
 (def numbers (with-open [r (clojure.java.io/reader "d4.txt")]
                (->> (line-seq r)
                     first

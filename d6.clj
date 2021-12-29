@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def lifetimes (->> (slurp "d6.txt")
                     clojure.string/trim-newline
                     (#(clojure.string/split % #","))

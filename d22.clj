@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (def number-re #"(-?[0-9]+)")
 (def interval-pattern (str number-re #"\.\." number-re))
 (def line-re (re-pattern (str "(on|off) x=" interval-pattern ",y=" interval-pattern ",z=" interval-pattern)))

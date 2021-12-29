@@ -1,3 +1,5 @@
+(require 'clojure.string)
+
 (defn tokenize [line]
   (map #(if (Character/isDigit %) (- (int %) (int \0)) %) line))
 
