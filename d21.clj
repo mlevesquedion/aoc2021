@@ -11,9 +11,9 @@
        p2-pos p2-init-pos, p2-total 0
        [roll & more] die-rolls
        die-roll-count 0]
-  (cond (>= p1-total 1000) (* p2-total die-roll-count)
-        (>= p2-total 1000) (* p1-total die-roll-count)
-        :else
+  (condp >= 1000
+        p1-total (* p2-total die-roll-count)
+        p2-total (* p1-total die-roll-count)
         (let [p1-pos (move p1-pos roll)
               p1-total (+ p1-total p1-pos)]
           (recur p2-pos p2-total p1-pos p1-total more (+ 3 die-roll-count)))))

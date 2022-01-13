@@ -17,10 +17,10 @@
     (let [mid (quot (+ left right) 2)
           [prev-cost mid-cost succ-cost] (map (partial dist-sum dist-fn) [(dec mid) mid (inc mid)])
           lowest-cost (min prev-cost mid-cost succ-cost)]
-      (cond
-        (= prev-cost lowest-cost) (recur left (dec mid))
-        (= succ-cost lowest-cost) (recur (inc mid) right)
-        :else mid-cost))))
+      (condp = lowest-cost
+        prev-cost (recur left (dec mid))
+        succ-cost (recur (inc mid) right)
+        mid-cost))))
 
 ; part 1
 (solve abs-difference)
